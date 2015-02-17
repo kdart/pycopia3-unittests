@@ -25,7 +25,9 @@ from pycopia import scheduler
 
 from pycopia.timelib import now
 
-class SchedulerBaseTest(core.Test):
+
+class SchedulerBaseTest(core.TestCase):
+
     def initialize(self):
         self.sched = scheduler.get_scheduler()
         self.STOP = 0
@@ -52,6 +54,7 @@ class SchedulerBaseTest(core.Test):
         self.info("subtimer fired properly")
         self._passed_timer = 1
 
+
 class BasicTimer(SchedulerBaseTest):
     """Test that a series of time events fire at approximately correct times."""
     def execute(self):
@@ -66,15 +69,17 @@ class BasicTimer(SchedulerBaseTest):
         self.assertApproximatelyEqual(now() - start, 8, 1)
         return self.passed("passed all assertions")
 
+
 class SubsecondTimer(SchedulerBaseTest):
     """Test that a series of time events fire at approximately correct times."""
     def execute(self):
         start = now()
-        self.sched.add(0.1, self._tp, args=(0.1, start))
-        self.sched.add(0.12, self._tp, args=(0.12, start))
+        self.sched.add(self._tp, 0.1, args=(0.1, start))
+        self.sched.add(self._tp, 0.12, args=(0.12, start))
         self.sched.sleep(1)
         self.assertApproximatelyEqual(now() - start, 1, 0.01)
         return self.passed("passed all assertions")
+
 
 class BasicSleepTest(SchedulerBaseTest):
     """Test that scheduler sleep function is accurate."""
@@ -216,30 +221,18 @@ class EventTrigger:
         self.close()
 
 
-### suite ###
-class SchedulerSuite(core.TestSuite):
-    pass
 
-def get_suite(conf):
-    suite = SchedulerSuite(conf)
+class SchedulerCase(core.UseCase):
 
-    suite.add_test(BasicTimer)
-    suite.add_test(SubsecondTimer)
-    suite.add_test(BasicSleepTest)
-    suite.add_test(TimeoutTest)
-    suite.add_test(SubTimeoutLongerTest)
-    suite.add_test(SubTimeoutShorterTest)
-    suite.add_test(TimedFunction)
-    suite.add_test(Multi)
-    return suite
-
-def run(conf):
-    suite = get_suite(conf)
-    suite()
-
-if __name__ == "__main__":
-    import config
-    cf = config.get_config()
-    run(cf)
-
-
+    @staticmethod
+    def get_suite(conf, env, ui):
+        suite = core.TestSuite(conf, env, ui, name="SchedulerSuite")
+        suite.add_test(BasicTimer)
+        suite.add_test(SubsecondTimer)
+        suite.add_test(BasicSleepTest)
+        suite.add_test(TimeoutTest)
+        suite.add_test(SubTimeoutLongerTest)
+        suite.add_test(SubTimeoutShorterTest)
+        suite.add_test(TimedFunction)
+        suite.add_test(Multi)
+        return suite
