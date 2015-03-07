@@ -8,9 +8,12 @@ Basic tests for the QA DB RESTful interface.
 
 import json
 
+from pycopia import aid
 from pycopia.QA import core
-from pycopia.QA.db import webui
 from pycopia.QA.db import models
+
+# Module under the test, or MUTT. :)
+from pycopia.QA.db import webui
 
 
 class Decoder(json.JSONDecoder):
@@ -20,6 +23,9 @@ class Decoder(json.JSONDecoder):
 
 
 decoder = Decoder().decode
+
+
+# Test cases
 
 
 class GetFragments(core.TestCase):
@@ -54,6 +60,7 @@ class GetEquipmentList(core.TestCase):
 
     The resource is fetched without error.
     """
+    PREREQUISITES = ["CreateDatabase"]
     def execute(self):
         app = self.config.app
         rv = decoder(app.get('/equipment'))
@@ -74,9 +81,10 @@ class GetConfigKeys(core.TestCase):
 
     The resource is fetched without error.
     """
+    PREREQUISITES = ["CreateDatabase"]
     def execute(self):
         app = self.config.app
-        rv = decoder(app.get('/config'))
+        rv = decoder(app.get('/keys'))
         self.info(rv)
         self.assertTrue('resultsdirbase' in rv)
         self.passed("Passed all assertions.")
@@ -102,6 +110,7 @@ class GetTableList(core.TestCase):
         self.passed("Passed all assertions.")
 
 
+
 class WebUISuite(core.TestSuite):
     """Special suite that initializes a Flask test client."""
 
@@ -121,6 +130,7 @@ class BasicUseCase(core.UseCase):
     def get_suite(config, environment, ui):
         suite = WebUISuite(config, environment, ui)
         suite.add_tests([
+            CreateDatabase,
             GetTableList,
             GetFragments,
             GetEquipmentList,

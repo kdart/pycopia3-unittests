@@ -92,7 +92,7 @@ class CreateFunction(core.TestCase):
         func = models.Function.get_by_name("tester")
         self.assertEqual(func.name, "tester")
         self.assertRaises(models.ModelError,
-                          models.Function.get_by_name, args=("xxx",),
+                          models.Function.get_by_name, args=("bogus",),
                           msg="Failed to raise ModelError.")
         self.passed("Created a function")
 
@@ -197,13 +197,13 @@ class EnvironmentFunctions(core.TestCase):
         eq = env.get_equipment_with_role("tester")
         self.assertEqual(dut.name, "tester.local", "Didn't get tester")
         self.assertRaises(models.ModelError,
-                          env.get_equipment_with_role, args=("xxx",),
+                          env.get_equipment_with_role, args=("bogus",),
                           msg="Failed to raise ModelError.")
         self.passed("Functions passed")
 
 
 class EquipmentInterfaces(core.TestCase):
-    """Check environment functions."""
+    """Check Equipment interface functions."""
     PREREQUISITES = ["CreateEquipment"]
 
     def execute(self):
